@@ -24,17 +24,30 @@
 
             let chatbox = document.getElementById("chatbox");
             chatbox.innerHTML += `<p><strong>You:</strong> ${input}</p>`;
-            
+
             document.getElementById("userInput").value = "";
 
-            let response = await fetch("https://medorachatbot.app.n8n.cloud/webhook-test/3a35f951-2e6a-4f3a-9452-0cd5f975b5db", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ query: input })
-            });
+            try {
+                let response = await fetch("https://medorachatbot.app.n8n.cloud/webhook-test/3a35f951-2e6a-4f3a-9452-0cd5f975b5db", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json"
+                    },
+                    mode: "cors", // Enable CORS
+                    body: JSON.stringify({ query: input })
+                });
 
-            let data = await response.json();
-            chatbox.innerHTML += `<p><strong>Medora:</strong> ${data.reply}</p>`;
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                let data = await response.json();
+                chatbox.innerHTML += `<p><strong>Medora:</strong> ${data.reply}</p>`;
+
+            } catch (error) {
+                console.error("Error fetching response:", error);
+                chatbox.innerHTML += `<p><strong>Medora:</strong> Sorry, there was an issue processing your request.</p>`;
+            }
         }
     </script>
 
